@@ -172,7 +172,8 @@ module CopyrightHeader
     @license = nil
     def initialize(options = {})
       @options = options
-      @exclude = [ /^LICENSE(|\.txt)$/i, /^holders(|\.txt)$/i, /^README/, /^\./]
+      @exclude = [ /^LICENSE(|\.txt)$/i, /^holders(|\.txt)$/i, /^README/, /\.(?:txt|md|jar|json)$/i]
+      @exclude_ext = [ ".jar",".json",".md",".restdown",".txt"]
       @license = License.new(:license_file => @options[:license_file],
                              :copyright_software => @options[:copyright_software],
                              :copyright_software_description => @options[:copyright_software_description],
@@ -207,6 +208,10 @@ module CopyrightHeader
           if File.file?(path)
             if @exclude.include? File.basename(path)
               STDERR.puts "SKIP #{path}; excluded"
+              next
+            elsif
+              @exclude_ext.include? File.extname(path)
+              STDERR.puts "SKIP #{path}; extension excluded"
               next
             end
           elsif File.directory?(path)
